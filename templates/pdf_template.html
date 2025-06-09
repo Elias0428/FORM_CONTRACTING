@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Contracting PDF</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            margin: 40px;
+            color: #222;
+            background-color: #fff;
+        }
+
+        h1 {
+            color: #1e73be;
+            font-size: 24px;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .section {
+            margin-bottom: 10px;
+        }
+
+        .row {
+            margin-bottom: 10px;
+        }
+
+        .label {
+            font-weight: 600;
+            font-size: 14px;
+            color: #444;
+            display: inline-block;
+            width: 250px;
+        }
+
+        .value {
+            font-size: 14px;
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <h1>Contracting Form</h1>
+    <p class="subtitle">
+        Take the first step in growing your business by getting contracted with top carriers in your market.
+        Complete the form below to select the carriers that best fit your needs and goals.
+    </p>
+
+    <div class="section">
+        <div class="row"><span class="label">Full Name:</span><span class="value">{{ name }}</span></div>
+        <div class="row"><span class="label">Email Address:</span><span class="value">{{ email }}</span></div>
+        <div class="row"><span class="label">Phone Number:</span><span class="value">{{ phone }}</span></div>
+        <div class="row"><span class="label">Postal Code:</span><span class="value">{{ zipCode }}</span></div>
+        <div class="row"><span class="label">Are you a licensed insurance agent?</span><span class="value">{{ licensed }}</span></div>
+        <div class="row"><span class="label">NPN#:</span><span class="value">{{ npn }}</span></div>
+        <div class="row"><span class="label">ACA Health Plans:</span><span class="value">{{ allAca }}</span></div>
+        <div class="row"><span class="label">Medicare Advantage Plans:</span><span class="value">{{ allMedicareAdvantage }}</span></div>
+        <div class="row"><span class="label">Medicare Supplement Plans:</span><span class="value">{{ allMedicareSupplement }}</span></div>
+        <div class="row"><span class="label">Life Insurance Plans:</span><span class="value">{{ allLifeInsurance }}</span></div>
+        <div class="row"><span class="label">Final Expenses Plans:</span><span class="value">{{ allFinalExpenses }}</span></div>
+        <div class="row"><span class="label">Observation / Notes:</span><span class="value">{{ observation }}</span></div>
+    </div>
+</body>
+</html>

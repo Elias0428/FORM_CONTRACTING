@@ -10,6 +10,7 @@ class Solicitud(db.Model):
     zipCode = db.Column(db.Integer)
     licensed = db.Column(db.String(10))
     npn = db.Column(db.String(20))
+    TC = db.Column(db.String(45))
     observation = db.Column(db.Text)
     
 class Aca(db.Model):
@@ -46,3 +47,12 @@ class FinalExpenses(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     finalExpenses = db.Column(db.String(100))
     solicitud_id = db.Column(db.Integer, db.ForeignKey('solicitud.id'), nullable=False)
+
+class Contacted(db.Model):
+    __tablename__ = 'contacted'
+
+    id = db.Column(db.Integer, primary_key=True)
+    contacted = db.Column(db.String(200))
+    solicitud_id = db.Column(db.Integer, db.ForeignKey('solicitud.id'), nullable=False)
+
+

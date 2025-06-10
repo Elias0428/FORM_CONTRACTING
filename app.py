@@ -5,7 +5,6 @@ from dotenv import load_dotenv
 from xhtml2pdf import pisa
 from flask_mail import Mail, Message
 from io import BytesIO
-from flask_migrate import Migrate
 import os
 
 # Cargar variables de entorno
@@ -14,8 +13,8 @@ load_dotenv()
 app = Flask(__name__)
 
 # Configuración base de datos
-user = os.getenv('MYSQL_USER')
-password = os.getenv('MYSQL_PASSWORD')
+user = 'root'
+password = ''
 host = os.getenv('MYSQL_HOST')
 database = os.getenv('MYSQL_DB')
 app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{user}:{password}@{host}/{database}'
@@ -32,12 +31,11 @@ app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER')
 
 mail = Mail(app)
 db.init_app(app)
-migrate = Migrate(app, db) 
 
 
-def render_pdf(nombre, email, phone, zipCode, licensed, npn, observation, allAca, allMedicareAdvantage, allMedicareSupplement, allLifeInsurance, allFinalExpenses):
+def render_pdf(nombre, email, phone, zipCode, licensed, npn, observation, allAca, allMedicareAdvantage, allMedicareSupplement, allLifeInsurance, allFinalExpenses, allContacted ):
     # Renderizar la plantilla con variables individuales
-    html = render_template("pdf_template.html", name=nombre, email=email, phone=phone, zipCode=zipCode, licensed=licensed, npn=npn, observation=observation, allAca=allAca, allMedicareAdvantage=allMedicareAdvantage, allMedicareSupplement=allMedicareSupplement, allLifeInsurance=allLifeInsurance, allFinalExpenses=allFinalExpenses )
+    html = render_template("pdf_template.html", name=nombre, email=email, phone=phone, zipCode=zipCode, licensed=licensed, npn=npn, observation=observation, allAca=allAca, allMedicareAdvantage=allMedicareAdvantage, allMedicareSupplement=allMedicareSupplement, allLifeInsurance=allLifeInsurance, allFinalExpenses=allFinalExpenses, allContacted=allContacted )
     pdf_stream = BytesIO()
     pisa_status = pisa.CreatePDF(html, dest=pdf_stream)
     if pisa_status.err:
@@ -56,10 +54,11 @@ def form():
         licensed = request.form.get("licensed")
         npn = request.form.get("npn")
         observation = request.form.get("observation")
+        TC = request.form.get("TC")
         
 
         # Guardar en base de datos
-        agent = Solicitud(nombre=nombre, email=email, phone=phone, zipCode=zipCode, licensed=licensed, npn=npn, observation=observation)
+        agent = Solicitud(nombre=nombre, email=email, phone=phone, zipCode=zipCode, licensed=licensed, npn=npn, observation=observation, TC=TC)
         db.session.add(agent)
         db.session.flush()  
         
@@ -88,10 +87,15 @@ def form():
         planFinalExpenses = FinalExpenses(finalExpenses=allFinalExpenses, solicitud_id=agent.id)
         db.session.add(planFinalExpenses)
 
+        contacted = request.form.getlist("contacted")
+        allContacted = ", ".join(contacted)
+        planContacted = Contacted(contacted=allContacted, solicitud_id=agent.id)
+        db.session.add(planContacted)
+
         db.session.commit()
 
         # Generar PDF con los datos
-        pdf = render_pdf(nombre, email, phone, zipCode, licensed, npn, observation, allAca, allMedicareAdvantage, allMedicareSupplement, allLifeInsurance, allFinalExpenses)
+        pdf = render_pdf(nombre, email, phone, zipCode, licensed, npn, observation, allAca, allMedicareAdvantage, allMedicareSupplement, allLifeInsurance, allFinalExpenses, allContacted)
 
         try: 
             # Enviar correo con PDF adjunto

@@ -13,8 +13,8 @@ load_dotenv()
 app = Flask(__name__)
 
 # Configuración base de datos
-user = 'root'
-password = ''
+user = os.getenv('MYSQL_USER')
+password = os.getenv('MYSQL_PASSWORD')
 host = os.getenv('MYSQL_HOST')
 database = os.getenv('MYSQL_DB')
 app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{user}:{password}@{host}/{database}'

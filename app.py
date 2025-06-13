@@ -33,9 +33,9 @@ mail = Mail(app)
 db.init_app(app)
 
 
-def render_pdf(nombre, email, phone, zipCode, licensed, npn, observation, allAca, allMedicareAdvantage, allMedicareSupplement, allLifeInsurance, allFinalExpenses, allContacted ):
+def render_pdf(nombre, email, phone, zipCode, licensed, npn, observation, allAca, allSupplementals,allMedicareAdvantage, allMedicareSupplement, allLifeInsurance, allFinalExpenses, allShortTermMedical,allContacted ):
     # Renderizar la plantilla con variables individuales
-    html = render_template("pdf_template.html", name=nombre, email=email, phone=phone, zipCode=zipCode, licensed=licensed, npn=npn, observation=observation, allAca=allAca, allMedicareAdvantage=allMedicareAdvantage, allMedicareSupplement=allMedicareSupplement, allLifeInsurance=allLifeInsurance, allFinalExpenses=allFinalExpenses, allContacted=allContacted )
+    html = render_template("pdf_template.html", name=nombre, email=email, phone=phone, zipCode=zipCode, licensed=licensed, npn=npn, observation=observation, allAca=allAca, allSupplementals=allSupplementals,allMedicareAdvantage=allMedicareAdvantage, allMedicareSupplement=allMedicareSupplement, allLifeInsurance=allLifeInsurance, allFinalExpenses=allFinalExpenses,allShortTermMedical=allShortTermMedical ,allContacted=allContacted )
     pdf_stream = BytesIO()
     pisa_status = pisa.CreatePDF(html, dest=pdf_stream)
     if pisa_status.err:
@@ -67,6 +67,11 @@ def form():
         planAca = Aca(aca=allAca, solicitud_id=agent.id)
         db.session.add(planAca)
 
+        supplementals = request.form.getlist("supplementals")
+        allSupplementals = ", ".join(supplementals)
+        planSupplementals = Supplementals(supplementals=allSupplementals, solicitud_id=agent.id)
+        db.session.add(planSupplementals)
+
         medicareAdvantage = request.form.getlist("medicareAdvantage")
         allMedicareAdvantage = ", ".join(medicareAdvantage)
         planMedicareAdvantage  = MedicareAdvantage(medicareAdvantage=allMedicareAdvantage, solicitud_id=agent.id)
@@ -87,6 +92,11 @@ def form():
         planFinalExpenses = FinalExpenses(finalExpenses=allFinalExpenses, solicitud_id=agent.id)
         db.session.add(planFinalExpenses)
 
+        shortTermMedical = request.form.getlist("shortTermMedical")
+        allShortTermMedical = ", ".join(shortTermMedical)
+        planShortTermMedical = ShortTermMedical(shortTermMedical=allShortTermMedical, solicitud_id=agent.id)
+        db.session.add(planShortTermMedical)
+
         contacted = request.form.getlist("contacted")
         allContacted = ", ".join(contacted)
         planContacted = Contacted(contacted=allContacted, solicitud_id=agent.id)
@@ -95,7 +105,7 @@ def form():
         db.session.commit()
 
         # Generar PDF con los datos
-        pdf = render_pdf(nombre, email, phone, zipCode, licensed, npn, observation, allAca, allMedicareAdvantage, allMedicareSupplement, allLifeInsurance, allFinalExpenses, allContacted)
+        pdf = render_pdf(nombre, email, phone, zipCode, licensed, npn, observation, allAca, allSupplementals ,allMedicareAdvantage, allMedicareSupplement, allLifeInsurance, allFinalExpenses,allShortTermMedical ,allContacted)
 
         try: 
             # Enviar correo con PDF adjunto

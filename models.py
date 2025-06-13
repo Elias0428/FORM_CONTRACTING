@@ -20,6 +20,13 @@ class Aca(db.Model):
     aca = db.Column(db.String(100))
     solicitud_id = db.Column(db.Integer, db.ForeignKey('solicitud.id'), nullable=False)
 
+class Supplementals(db.Model):
+    __tablename__ = 'supplementals'
+
+    id = db.Column(db.Integer, primary_key=True)
+    supplementals = db.Column(db.String(100))
+    solicitud_id = db.Column(db.Integer, db.ForeignKey('solicitud.id'), nullable=False)
+
 class MedicareAdvantage(db.Model):
     __tablename__ = 'medicareAdvantage'
 
@@ -46,6 +53,13 @@ class FinalExpenses(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     finalExpenses = db.Column(db.String(100))
+    solicitud_id = db.Column(db.Integer, db.ForeignKey('solicitud.id'), nullable=False)
+
+class ShortTermMedical(db.Model):
+    __tablename__ = 'sortTermMedical'
+
+    id = db.Column(db.Integer, primary_key=True)
+    sortTermMedical = db.Column(db.String(100))
     solicitud_id = db.Column(db.Integer, db.ForeignKey('solicitud.id'), nullable=False)
 
 class Contacted(db.Model):

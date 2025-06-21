@@ -33,11 +33,23 @@ mail = Mail(app)
 db.init_app(app)
 
 
+def link_callback(uri, rel):
+    """
+    Convierte /static/... en una ruta absoluta para xhtml2pdf.
+    """
+    static_folder = os.path.abspath("static")
+    path = os.path.join(static_folder, uri.replace("/static/", ""))
+    
+    if not os.path.isfile(path):
+        raise Exception(f"No se pudo encontrar el recurso estático: {path}")
+    
+    return path
+
 def render_pdf(nombre, email, phone, zipCode, licensed, npn, observation, allAca, allSupplementals,allMedicareAdvantage, allMedicareSupplement, allLifeInsurance, allFinalExpenses, allShortTermMedical,allContacted ):
     # Renderizar la plantilla con variables individuales
     html = render_template("pdf_template.html", name=nombre, email=email, phone=phone, zipCode=zipCode, licensed=licensed, npn=npn, observation=observation, allAca=allAca, allSupplementals=allSupplementals,allMedicareAdvantage=allMedicareAdvantage, allMedicareSupplement=allMedicareSupplement, allLifeInsurance=allLifeInsurance, allFinalExpenses=allFinalExpenses,allShortTermMedical=allShortTermMedical ,allContacted=allContacted )
     pdf_stream = BytesIO()
-    pisa_status = pisa.CreatePDF(html, dest=pdf_stream)
+    pisa_status = pisa.CreatePDF(html, dest=pdf_stream,  link_callback=link_callback)
     if pisa_status.err:
         return None
     pdf_stream.seek(0)  # importante para leer desde el inicio luego
@@ -94,7 +106,7 @@ def form():
 
         shortTermMedical = request.form.getlist("shortTermMedical")
         allShortTermMedical = ", ".join(shortTermMedical)
-        planShortTermMedical = ShortTermMedical(shortTermMedical=allShortTermMedical, solicitud_id=agent.id)
+        planShortTermMedical = ShortTermMedical(sortTermMedical=allShortTermMedical, solicitud_id=agent.id)
         db.session.add(planShortTermMedical)
 
         contacted = request.form.getlist("contacted")

@@ -12,7 +12,7 @@
         }
 
         h1 {
-            color: #1e73be;
+            color: #c69f33;
             font-size: 24px;
             margin-bottom: 5px;
             text-align: center;
@@ -27,10 +27,11 @@
 
         .section {
             margin-bottom: 10px;
+            line-height: 0.8; 
         }
 
         .row {
-            margin-bottom: 10px;
+            margin-bottom: 4px;
         }
 
         .label {
@@ -48,31 +49,35 @@
     </style>
 </head>
 <body>
+
+    <div style="text-align: center; margin-bottom: 20px;">
+        <img src="/static/img/lapeira.webp" alt="Logo" style="width: 200px; height: auto;">
+    </div>
+
     <h1>Contracting Form</h1>
     <p class="subtitle">
         Take the first step in growing your business by getting contracted with top carriers in your market.
         Complete the form below to select the carriers that best fit your needs and goals.
     </p>
 
-    <div class="section">
-        <div class="row"><span class="label">Full Name:</span> <span class="value"> {{ name }}</span></div>
-        <div class="row"><span class="label">Email Address:</span> <span class="value"> {{ email }}</span></div>
-        <div class="row"><span class="label">Phone Number:</span> <span class="value"> {{ phone }}</span></div>
-        <div class="row"><span class="label">Postal Code:</span> <span class="value"> {{ zipCode }}</span></div>
-        <div class="row"><span class="label">I agree to be contacted via:</span> <span class="value"> {{ allContacted }}</span></div>
-        <div class="row"><span class="label">Are you a licensed insurance agent?</span> <span class="value"> {{ licensed }}</span></div>
-        <div class="row"><span class="label">NPN#:</span> <span class="value"> {{ npn }}</span></div>
-        <div class="row"><span class="label">ACA Health Plans:</span> <span class="value"> {{ allAca }}</span></div>
-        <div class="row"><span class="label">Supplementals:</span> <span class="value"> {{ allSupplementals }}</span></div>
-        <div class="row"><span class="label">Medicare Advantage Plans:</span> <span class="value"> {{ allMedicareAdvantage }}</span></div>
-        <div class="row"><span class="label">Medicare Supplement Plans:</span> <span class="value"> {{ allMedicareSupplement }}</span></div>
-        <div class="row"><span class="label">Life Insurance Plans:</span> <span class="value"> {{ allLifeInsurance }}</span></div>
-        <div class="row"><span class="label">Final Expenses Plans:</span> <span class="value"> {{ allFinalExpenses }}</span></div>
-        <div class="row"><span class="label">Short Term Medical:</span> <span class="value"> {{ allShortTermMedical }}</span></div>
-        <div class="row"><span class="label">Observation / Notes:</span> <span class="value"> {{ observation }}</span></div>
-        <div class="row">  I agree to receive automated text messages from Lapeira & Associates LLC with information regarding health insurance options, benefits, insurance products, policy updates, premiums, applications, and related matters to assist me or remind me of any action necessary to keep your clients' policies current. You agree to our Terms of Use and Privacy Policy. Reply HELP for help. Message & data rates may apply. Up to 5 messages/month. Reply STOP to opt out at any time. * </div>
+    <table style="width: 100%; font-size: 12px; line-height: 1.6;">
+        <tr><td><strong>Full Name:</strong></td><td>{{ name }}</td></tr>
+        <tr><td><strong>Email:</strong></td><td>{{ email }}</td></tr>
+        <tr><td><strong>Phone:</strong></td><td>{{ phone }}</td></tr>
+        <tr><td><strong>Postal Code:</strong></td><td>{{ zipCode }}</td></tr>
+        <tr><td><strong>Contacted Via:</strong></td><td>{{ allContacted }}</td></tr>
+        <tr><td><strong>Licensed:</strong></td><td>{{ licensed }}</td></tr>
+        <tr><td><strong>NPN#:</strong></td><td>{{ npn }}</td></tr>
+        <tr><td><strong>ACA Plans:</strong></td><td>{{ allAca }}</td></tr>
+        <tr><td><strong>Supplementals:</strong></td><td>{{ allSupplementals }}</td></tr>
+        <tr><td><strong>Medicare Advantage:</strong></td><td>{{ allMedicareAdvantage }}</td></tr>
+        <tr><td><strong>Medicare Supplement:</strong></td><td>{{ allMedicareSupplement }}</td></tr>
+        <tr><td><strong>Life Insurance:</strong></td><td>{{ allLifeInsurance }}</td></tr>
+        <tr><td><strong>Final Expenses:</strong></td><td>{{ allFinalExpenses }}</td></tr>
+        <tr><td><strong>Short Term Medical:</strong></td><td>{{ allShortTermMedical }}</td></tr>
+        <tr><td><strong>Observation:</strong></td><td>{{ observation }}</td></tr>
+    </table>
 
-      
-    </div>
+
 </body>
 </html>

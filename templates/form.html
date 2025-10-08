@@ -75,7 +75,7 @@
                 Complete the form below to select the carriers that best fit your needs and goals.
             </p>
 
-            <form method="POST" action="/">
+            <form method="POST" action="/"  enctype="multipart/form-data">
                 <div class="row mb-3">
                     <div class="col-md-6 mb-4">
                         <label for="name" class="form-label">Full Name</label>
@@ -196,6 +196,11 @@
                         </select>
                     </div>
 
+                    <div class="col-md-12 mb-4">
+                        <label for="documents" class="form-label">Upload Required Documents</label>
+                        <input type="file" name="documents" id="documents" class="form-control" multiple>
+                        <small class="text-muted">Accepted formats: PDF, JPG, PNG, DOCX</small>
+                    </div>
 
                     <div class="col-md-12 mb-4">
                         <label for="observation" class="form-label">Observation / Notes</label>

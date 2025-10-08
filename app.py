@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from xhtml2pdf import pisa
 from flask_mail import Mail, Message
 from io import BytesIO
+import base64
 import os
 
 # Cargar variables de entorno
@@ -22,7 +23,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Configuración de correo
 app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
-app.config['MAIL_PORT'] = os.getenv('MAIL_PORT')
+app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
 app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS') == 'True'
 app.config['MAIL_USE_SSL'] = os.getenv('MAIL_USE_SSL') == 'True'
 app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
@@ -33,29 +34,43 @@ mail = Mail(app)
 db.init_app(app)
 
 
-def link_callback(uri, rel):
-    """
-    Convierte /static/... en una ruta absoluta para xhtml2pdf.
-    """
-    static_folder = os.path.abspath("static")
-    path = os.path.join(static_folder, uri.replace("/static/", ""))
-    
-    if not os.path.isfile(path):
-        raise Exception(f"No se pudo encontrar el recurso estático: {path}")
-    
-    return path
+# ---------------------------
+# FUNCIÓN PARA GENERAR EL PDF
+# ---------------------------
+def render_pdf(nombre, email, phone, zipCode, licensed, npn, observation,
+               allAca, allSupplementals, allMedicareAdvantage, allMedicareSupplement,
+               allLifeInsurance, allFinalExpenses, allShortTermMedical, allContacted,
+               documentos=[]):
 
-def render_pdf(nombre, email, phone, zipCode, licensed, npn, observation, allAca, allSupplementals,allMedicareAdvantage, allMedicareSupplement, allLifeInsurance, allFinalExpenses, allShortTermMedical,allContacted ):
-    # Renderizar la plantilla con variables individuales
-    html = render_template("pdf_template.html", name=nombre, email=email, phone=phone, zipCode=zipCode, licensed=licensed, npn=npn, observation=observation, allAca=allAca, allSupplementals=allSupplementals,allMedicareAdvantage=allMedicareAdvantage, allMedicareSupplement=allMedicareSupplement, allLifeInsurance=allLifeInsurance, allFinalExpenses=allFinalExpenses,allShortTermMedical=allShortTermMedical ,allContacted=allContacted )
-    pdf_stream = BytesIO()
-    pisa_status = pisa.CreatePDF(html, dest=pdf_stream,  link_callback=link_callback)
-    if pisa_status.err:
-        return None
-    pdf_stream.seek(0)  # importante para leer desde el inicio luego
-    return pdf_stream
+    # Renderizamos el HTML con Jinja2 (Flask usa render_template)
+    html = render_template("pdf_template.html", 
+        name=nombre,
+        email=email,
+        phone=phone,
+        zipCode=zipCode,
+        licensed=licensed,
+        npn=npn,
+        observation=observation,
+        allAca=allAca,
+        allSupplementals=allSupplementals,
+        allMedicareAdvantage=allMedicareAdvantage,
+        allMedicareSupplement=allMedicareSupplement,
+        allLifeInsurance=allLifeInsurance,
+        allFinalExpenses=allFinalExpenses,
+        allShortTermMedical=allShortTermMedical,
+        allContacted=allContacted,
+        documentos=documentos
+    )
+
+    pdf_buffer = BytesIO()
+    pisa.CreatePDF(html, dest=pdf_buffer)
+    pdf_buffer.seek(0)
+    return pdf_buffer
 
 
+# ---------------------------
+# RUTA PRINCIPAL
+# ---------------------------
 @app.route("/", methods=["GET", "POST"])
 def form():
     if request.method == "POST":
@@ -67,74 +82,76 @@ def form():
         npn = request.form.get("npn")
         observation = request.form.get("observation")
         TC = request.form.get("TC")
-        
 
-        # Guardar en base de datos
-        agent = Solicitud(nombre=nombre, email=email, phone=phone, zipCode=zipCode, licensed=licensed, npn=npn, observation=observation, TC=TC)
-        db.session.add(agent)
-        db.session.flush()  
-        
+        # ---- Procesar archivos sin guardarlos ----
+        documentos = []
+        for f in request.files.getlist("documents"):
+            if f.mimetype.startswith("image/"):
+                img_data = base64.b64encode(f.read()).decode("utf-8")
+                documentos.append(f"data:{f.mimetype};base64,{img_data}")
+            else:
+                documentos.append(f.filename)
+
+        # ---- Procesar los checkboxes ----
         aca = request.form.getlist("aca")
         allAca = ", ".join(aca)
-        planAca = Aca(aca=allAca, solicitud_id=agent.id)
-        db.session.add(planAca)
 
         supplementals = request.form.getlist("supplementals")
         allSupplementals = ", ".join(supplementals)
-        planSupplementals = Supplementals(supplementals=allSupplementals, solicitud_id=agent.id)
-        db.session.add(planSupplementals)
 
         medicareAdvantage = request.form.getlist("medicareAdvantage")
         allMedicareAdvantage = ", ".join(medicareAdvantage)
-        planMedicareAdvantage  = MedicareAdvantage(medicareAdvantage=allMedicareAdvantage, solicitud_id=agent.id)
-        db.session.add(planMedicareAdvantage)
 
         medicareSupplement = request.form.getlist("medicareSupplement")
         allMedicareSupplement = ", ".join(medicareSupplement)
-        planMedicareSupplement = MedicareSupplement(medicareSupplement=allMedicareSupplement, solicitud_id=agent.id)
-        db.session.add(planMedicareSupplement)
 
         lifeInsurance = request.form.getlist("lifeInsurance")
         allLifeInsurance = ", ".join(lifeInsurance)
-        planLifeInsurance = LifeInsurance(lifeInsurance=allLifeInsurance, solicitud_id=agent.id)
-        db.session.add(planLifeInsurance)
 
         finalExpenses = request.form.getlist("finalExpenses")
         allFinalExpenses = ", ".join(finalExpenses)
-        planFinalExpenses = FinalExpenses(finalExpenses=allFinalExpenses, solicitud_id=agent.id)
-        db.session.add(planFinalExpenses)
 
         shortTermMedical = request.form.getlist("shortTermMedical")
         allShortTermMedical = ", ".join(shortTermMedical)
-        planShortTermMedical = ShortTermMedical(sortTermMedical=allShortTermMedical, solicitud_id=agent.id)
-        db.session.add(planShortTermMedical)
 
         contacted = request.form.getlist("contacted")
         allContacted = ", ".join(contacted)
-        planContacted = Contacted(contacted=allContacted, solicitud_id=agent.id)
-        db.session.add(planContacted)
+
+        # ---- Guardar en BD ----
+        agent = Solicitud(nombre=nombre, email=email, phone=phone, zipCode=zipCode, licensed=licensed, npn=npn, observation=observation, TC=TC)
+        db.session.add(agent)
+        db.session.flush()
+
+        db.session.add(Aca(aca=allAca, solicitud_id=agent.id))
+        db.session.add(Supplementals(supplementals=allSupplementals, solicitud_id=agent.id))
+        db.session.add(MedicareAdvantage(medicareAdvantage=allMedicareAdvantage, solicitud_id=agent.id))
+        db.session.add(MedicareSupplement(medicareSupplement=allMedicareSupplement, solicitud_id=agent.id))
+        db.session.add(LifeInsurance(lifeInsurance=allLifeInsurance, solicitud_id=agent.id))
+        db.session.add(FinalExpenses(finalExpenses=allFinalExpenses, solicitud_id=agent.id))
+        db.session.add(ShortTermMedical(sortTermMedical=allShortTermMedical, solicitud_id=agent.id))
+        db.session.add(Contacted(contacted=allContacted, solicitud_id=agent.id))
 
         db.session.commit()
 
-        # Generar PDF con los datos
-        pdf = render_pdf(nombre, email, phone, zipCode, licensed, npn, observation, allAca, allSupplementals ,allMedicareAdvantage, allMedicareSupplement, allLifeInsurance, allFinalExpenses,allShortTermMedical ,allContacted)
+        # ---- Generar el PDF ----
+        pdf = render_pdf(
+            nombre, email, phone, zipCode, licensed, npn, observation,
+            allAca, allSupplementals, allMedicareAdvantage, allMedicareSupplement,
+            allLifeInsurance, allFinalExpenses, allShortTermMedical, allContacted,
+            documentos=documentos
+        )
 
-        try: 
+        try:
             # Enviar correo con PDF adjunto
-            if pdf:
-                msg = Message("New Contracting", recipients=[os.getenv("MAIL_RECIPIENT")])
-                msg.body = "Adjunto encontrarás el PDF con los datos del formulario."
-                msg.attach("contracting.pdf", "application/pdf", pdf.read())
-                mail.send(msg)
+            msg = Message("New Contracting", recipients=[os.getenv("MAIL_RECIPIENT")])
+            msg.body = "Adjunto encontrarás el PDF con los datos del formulario."
+            msg.attach("contracting.pdf", "application/pdf", pdf.read())
+            mail.send(msg)
 
-            # Si todo va bien, redirigimos con success
             return redirect(url_for("form", success=1))
-
         except Exception as e:
-            print("Error al enviar correo:", e)
-            # Si falla el correo, redirigimos con error
+            print("❌ Error al enviar correo:", e)
             return redirect(url_for("form", error=1))
-
 
     success = request.args.get("success")
     error = request.args.get("error")

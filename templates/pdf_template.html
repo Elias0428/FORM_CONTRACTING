@@ -79,22 +79,36 @@
     </table>
 
     {% if documentos %}
-        <h1 style="margin-top:40px; color:#c69f33; text-align:center;">Attached Documents</h1>
+        <h1 style="margin-top:40px; color:#c69f33; text-align:center;">
+            Attached Documents
+        </h1>
         <hr style="margin-bottom:20px;">
 
         {% for doc in documentos %}
             <div style="margin-bottom: 30px; text-align: center;">
-                {% if doc.startswith("data:image") %}
-                    <img src="{{ doc }}" alt="Uploaded Image" 
+
+                {% if doc.type in ["image", "pdf_page"] %}
+                    <img src="{{ doc.data }}"
                         style="max-width: 600px; max-height: 800px; border: 1px solid #ccc;">
-                {% else %}
-                    <p><strong>File:</strong> {{ doc }}</p>
+
+                    {% if doc.page %}
+                        <p style="font-size:12px;color:#555;">
+                            PDF Page {{ doc.page }}
+                        </p>
+                    {% endif %}
+
+                {% elif doc.type == "other" %}
+                    <p><strong>File:</strong> {{ doc.name }}</p>
+
+                {% elif doc.type == "error" %}
+                    <p style="color:red;">
+                        Error processing {{ doc.name }}
+                    </p>
                 {% endif %}
+
             </div>
         {% endfor %}
-
     {% endif %}
-
 
 </body>
 </html>

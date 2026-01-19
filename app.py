@@ -7,6 +7,10 @@ from flask_mail import Mail, Message
 from io import BytesIO
 import base64
 import os
+from pdf2image import convert_from_bytes
+from PIL import Image
+
+
 
 # Cargar variables de entorno
 load_dotenv()
@@ -86,11 +90,49 @@ def form():
         # ---- Procesar archivos sin guardarlos ----
         documentos = []
         for f in request.files.getlist("documents"):
+            file_bytes = f.read()
+
+            # ---- IMÁGENES ----
             if f.mimetype.startswith("image/"):
-                img_data = base64.b64encode(f.read()).decode("utf-8")
-                documentos.append(f"data:{f.mimetype};base64,{img_data}")
+                img_base64 = base64.b64encode(file_bytes).decode("utf-8")
+                documentos.append({
+                    "type": "image",
+                    "data": f"data:{f.mimetype};base64,{img_base64}"
+                })
+
+            # ---- PDF ----
+            elif f.mimetype == "application/pdf":
+                try:
+                    pages = convert_from_bytes(
+                        file_bytes,
+                        dpi=150,           # calidad razonable
+                        fmt="png"
+                    )
+
+                    for idx, page in enumerate(pages):
+                        buffer = BytesIO()
+                        page.save(buffer, format="PNG", optimize=True)
+                        img_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
+
+                        documentos.append({
+                            "type": "pdf_page",
+                            "page": idx + 1,
+                            "data": f"data:image/png;base64,{img_base64}"
+                        })
+
+                except Exception as e:
+                    documentos.append({
+                        "type": "error",
+                        "name": f.filename,
+                        "error": str(e)
+                    })
+
+            # ---- OTROS ----
             else:
-                documentos.append(f.filename)
+                documentos.append({
+                    "type": "other",
+                    "name": f.filename
+                })
 
         # ---- Procesar los checkboxes ----
         aca = request.form.getlist("aca")

@@ -92,6 +92,7 @@ def form():
 
         # ---- Procesar archivos sin guardarlos ----
         documentos = []
+
         for f in request.files.getlist("documents"):
             file_bytes = f.read()
 
@@ -105,19 +106,23 @@ def form():
 
             # ---- PDF ----
             elif f.mimetype == "application/pdf":
-
-                import tempfile
-
-                temp_dir = tempfile.mkdtemp()
-
+                # Convertir PDF a imágenes
                 pages = convert_from_bytes(file_bytes, dpi=120)
+                
                 for idx, page in enumerate(pages):
-                    img_path = os.path.join(temp_dir, f"pdf_{idx}.png")
-                    page.save(img_path, format="PNG")
-
+                    # Convertir la imagen PIL a bytes
+                    img_buffer = BytesIO()
+                    page.save(img_buffer, format="PNG")
+                    img_buffer.seek(0)
+                    
+                    # Convertir a base64
+                    img_base64 = base64.b64encode(img_buffer.read()).decode("utf-8")
+                    
                     documentos.append({
                         "type": "pdf_page",
-                        "path": img_path
+                        "data": f"data:image/png;base64,{img_base64}",
+                        "filename": f.filename,
+                        "page": idx + 1
                     })
 
             # ---- OTROS ----

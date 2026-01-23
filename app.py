@@ -45,7 +45,6 @@ def render_pdf(nombre, email, phone, zipCode, address ,licensed, npn, observatio
                allAca, allSupplementals, allMedicareAdvantage, allMedicareSupplement,
                allLifeInsurance, allFinalExpenses, allShortTermMedical, allContacted,
                allStates, documentos=[]):
-    logo_path = os.path.join(app.root_path, "static/img/lapeira.webp")
 
     # Renderizamos el HTML con Jinja2 (Flask usa render_template)
     html = render_template("pdf_template.html", 
@@ -66,8 +65,7 @@ def render_pdf(nombre, email, phone, zipCode, address ,licensed, npn, observatio
         allShortTermMedical=allShortTermMedical,
         allContacted=allContacted,
         allStates=allStates,
-        documentos=documentos,
-        logo_path=logo_path
+        documentos=documentos
     )
 
     pdf_buffer = BytesIO()
@@ -107,30 +105,19 @@ def form():
 
             # ---- PDF ----
             elif f.mimetype == "application/pdf":
-                try:
-                    pages = convert_from_bytes(
-                        file_bytes,
-                        dpi=150,           # calidad razonable
-                        fmt="png"
-                    )
 
-                    for idx, page in enumerate(pages):
-                        buffer = BytesIO()
-                        page.save(buffer, format="PNG", optimize=True)
-                        img_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
+                import tempfile
 
-                        documentos.append({
-                            "type": "pdf_page",
-                            "page": idx + 1,
-                            "data": f"data:image/png;base64,{img_base64}"
-                        })
+                temp_dir = tempfile.mkdtemp()
 
-                except Exception as e:
-                    print("❌ PDF ERROR:", e)
+                pages = convert_from_bytes(file_bytes, dpi=120)
+                for idx, page in enumerate(pages):
+                    img_path = os.path.join(temp_dir, f"pdf_{idx}.png")
+                    page.save(img_path, format="PNG")
+
                     documentos.append({
-                        "type": "error",
-                        "name": f.filename,
-                        "error": str(e)
+                        "type": "pdf_page",
+                        "path": img_path
                     })
 
             # ---- OTROS ----
@@ -187,23 +174,9 @@ def form():
 
         # ---- Generar el PDF ----
         pdf = render_pdf(
-            nombre=nombre,
-            email=email,
-            phone=phone,
-            zipCode=zipCode,
-            address=address,
-            licensed=licensed,
-            npn=npn,
-            observation=observation,
-            allAca=allAca,
-            allSupplementals=allSupplementals,
-            allMedicareAdvantage=allMedicareAdvantage,
-            allMedicareSupplement=allMedicareSupplement,
-            allLifeInsurance=allLifeInsurance,
-            allFinalExpenses=allFinalExpenses,
-            allShortTermMedical=allShortTermMedical,
-            allContacted=allContacted,
-            allStates=allStates,
+            nombre, email, phone, zipCode, address ,licensed, allStates ,npn, observation,
+            allAca, allSupplementals, allMedicareAdvantage, allMedicareSupplement,
+            allLifeInsurance, allFinalExpenses, allShortTermMedical, allContacted,
             documentos=documentos
         )
 

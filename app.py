@@ -45,6 +45,7 @@ def render_pdf(nombre, email, phone, zipCode, address ,licensed, npn, observatio
                allAca, allSupplementals, allMedicareAdvantage, allMedicareSupplement,
                allLifeInsurance, allFinalExpenses, allShortTermMedical, allContacted,
                allStates, documentos=[]):
+    logo_path = os.path.join(app.root_path, "static/img/lapeira.webp")
 
     # Renderizamos el HTML con Jinja2 (Flask usa render_template)
     html = render_template("pdf_template.html", 
@@ -65,7 +66,8 @@ def render_pdf(nombre, email, phone, zipCode, address ,licensed, npn, observatio
         allShortTermMedical=allShortTermMedical,
         allContacted=allContacted,
         allStates=allStates,
-        documentos=documentos
+        documentos=documentos,
+        logo_path=logo_path
     )
 
     pdf_buffer = BytesIO()
@@ -185,9 +187,23 @@ def form():
 
         # ---- Generar el PDF ----
         pdf = render_pdf(
-            nombre, email, phone, zipCode, address ,licensed, allStates ,npn, observation,
-            allAca, allSupplementals, allMedicareAdvantage, allMedicareSupplement,
-            allLifeInsurance, allFinalExpenses, allShortTermMedical, allContacted,
+            nombre=nombre,
+            email=email,
+            phone=phone,
+            zipCode=zipCode,
+            address=address,
+            licensed=licensed,
+            npn=npn,
+            observation=observation,
+            allAca=allAca,
+            allSupplementals=allSupplementals,
+            allMedicareAdvantage=allMedicareAdvantage,
+            allMedicareSupplement=allMedicareSupplement,
+            allLifeInsurance=allLifeInsurance,
+            allFinalExpenses=allFinalExpenses,
+            allShortTermMedical=allShortTermMedical,
+            allContacted=allContacted,
+            allStates=allStates,
             documentos=documentos
         )
 

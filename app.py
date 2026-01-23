@@ -124,6 +124,7 @@ def form():
                         })
 
                 except Exception as e:
+                    print("❌ PDF ERROR:", e)
                     documentos.append({
                         "type": "error",
                         "name": f.filename,

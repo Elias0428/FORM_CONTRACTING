@@ -8,6 +8,7 @@ class Solicitud(db.Model):
     email = db.Column(db.String(120))
     phone = db.Column(db.String(100))
     zipCode = db.Column(db.Integer)
+    address = db.Column(db.String(255))
     licensed = db.Column(db.String(10))
     npn = db.Column(db.String(20))
     TC = db.Column(db.String(45))
@@ -67,6 +68,13 @@ class Contacted(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     contacted = db.Column(db.String(200))
+    solicitud_id = db.Column(db.Integer, db.ForeignKey('solicitud.id'), nullable=False)
+
+class StateCoverage(db.Model):
+    __tablename__ = 'stateCoverage'
+
+    id = db.Column(db.Integer, primary_key=True)
+    states = db.Column(db.String(200))
     solicitud_id = db.Column(db.Integer, db.ForeignKey('solicitud.id'), nullable=False)
 
 

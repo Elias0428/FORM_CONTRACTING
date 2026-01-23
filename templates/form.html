@@ -84,8 +84,7 @@
                     <div class="col-md-6 mb-4">
                         <label for="email" class="form-label">Email Address</label>
                         <input type="email" name="email" id="email" class="form-control" required>
-                    </div>
-                
+                    </div>                
 
                     <div class="col-md-6 mb-4">
                         <label for="phone" class="form-label">Phone Number</label>
@@ -98,6 +97,16 @@
                     </div>
 
                     <div class="col-md-6 mb-4">
+                        <label for="address" class="form-label">Address</label>
+                        <input type="number" name="address" id="address" class="form-control" required>
+                    </div>
+
+                    <div class="col-md-6 mb-4">
+                        <label for="npn" class="form-label">NPN #</label>
+                        <input type="number" name="npn" id="npn" class="form-control">
+                    </div>
+
+                    <div class="col-md-6 mb-4">
                         <label for="licensed" class="form-label">Are you a licensed insurance agent?</label>
                         <select name="licensed" id="licensed"  class="choices-select"  required  >
                             <option value="" ></option>
@@ -107,8 +116,58 @@
                     </div>
 
                     <div class="col-md-6 mb-4">
-                        <label for="npn" class="form-label">NPN #</label>
-                        <input type="number" name="npn" id="npn" class="form-control">
+                        <label for="states" class="form-label">States Where Licensed</label>
+                        <select name="states" id="states" multiple class="choices-select" required >
+                            <option value="N/A">N/A</option>
+                            <option value="AL">AL</option>
+                            <option value="AK">AK</option>
+                            <option value="AZ">AZ</option>
+                            <option value="AR">AR</option>
+                            <option value="CA">CA</option>
+                            <option value="CO">CO</option>
+                            <option value="CT">CT</option>
+                            <option value="DE">DE</option>
+                            <option value="GA">GA</option>
+                            <option value="HI">HI</option>
+                            <option value="ID">ID</option>
+                            <option value="IL">IL</option>
+                            <option value="IN">IN</option>
+                            <option value="IA">IA</option>
+                            <option value="KS">KS</option>
+                            <option value="KY">KY</option>
+                            <option value="LA">LA</option>
+                            <option value="ME">ME</option>
+                            <option value="MD">MD</option>
+                            <option value="MA">MA</option>
+                            <option value="MI">MI</option>
+                            <option value="MN">MN</option>
+                            <option value="MS">MS</option>
+                            <option value="MO">MO</option>
+                            <option value="MT">MT</option>
+                            <option value="NE">NE</option>
+                            <option value="NV">NV</option>
+                            <option value="NH">NH</option>
+                            <option value="NJ">NJ</option>
+                            <option value="NM">NM</option>
+                            <option value="NY">NY</option>
+                            <option value="NC">NC</option>
+                            <option value="ND">ND</option>
+                            <option value="OH">OH</option>
+                            <option value="OK">OK</option>
+                            <option value="OR">OR</option>
+                            <option value="PA">PA</option>
+                            <option value="RI">RI</option>
+                            <option value="SC">SC</option>
+                            <option value="SD">SD</option>
+                            <option value="TN">TN</option>
+                            <option value="UT">UT</option>
+                            <option value="VT">VT</option>
+                            <option value="VA">VA</option>
+                            <option value="WA">WA</option>
+                            <option value="WV">WV</option>
+                            <option value="WI">WI</option>
+                            <option value="WY">WY</option>
+                        </select>
                     </div>
 
                     <div class="col-md-6 mb-4">
@@ -175,7 +234,7 @@
 
                     <div class="col-md-6 mb-4">
                         <label for="finalExpenses" class="form-label">Final Expenses</label>
-                        <select name="finalExpenses" id="finalExpenses" class="choices-select" required >
+                        <select name="finalExpenses" id="finalExpenses" multiple class="choices-select" required >
                             <option value="ALLSTATE">ALLSTATE</option>
                             <option value="SENIOR LIFE">SENIOR LIFE</option>
                         </select>
@@ -198,13 +257,17 @@
 
                     <div class="col-md-12 mb-4">
                         <label for="documents" class="form-label">Upload Required Documents</label>
+                            <ul>
+                                <li>Driver License</li>
+                                <li>E&O</li>
+                            </ul>
                         <input type="file" name="documents" id="documents" class="form-control" multiple>
                         <small class="text-muted">Accepted formats: PDF, JPG, PNG, DOCX</small>
                     </div>
 
                     <div class="col-md-12 mb-4">
                         <label for="observation" class="form-label">Observation / Notes</label>
-                        <textarea style="resize: none" name="observation" id="observation" rows="4" class="form-control" ></textarea>
+                        <textarea style="resize: none" name="observation" id="observation" rows="4" placeholder="What goals do you want to achieve as License Agent?......" class="form-control" ></textarea>
                     </div>
 
                     <div class="col-md-12">

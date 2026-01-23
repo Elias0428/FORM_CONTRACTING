@@ -41,10 +41,10 @@ db.init_app(app)
 # ---------------------------
 # FUNCIÓN PARA GENERAR EL PDF
 # ---------------------------
-def render_pdf(nombre, email, phone, zipCode, licensed, npn, observation,
+def render_pdf(nombre, email, phone, zipCode, address ,licensed, npn, observation,
                allAca, allSupplementals, allMedicareAdvantage, allMedicareSupplement,
                allLifeInsurance, allFinalExpenses, allShortTermMedical, allContacted,
-               documentos=[]):
+               allStates, documentos=[]):
 
     # Renderizamos el HTML con Jinja2 (Flask usa render_template)
     html = render_template("pdf_template.html", 
@@ -52,6 +52,7 @@ def render_pdf(nombre, email, phone, zipCode, licensed, npn, observation,
         email=email,
         phone=phone,
         zipCode=zipCode,
+        address=address,
         licensed=licensed,
         npn=npn,
         observation=observation,
@@ -63,6 +64,7 @@ def render_pdf(nombre, email, phone, zipCode, licensed, npn, observation,
         allFinalExpenses=allFinalExpenses,
         allShortTermMedical=allShortTermMedical,
         allContacted=allContacted,
+        allStates=allStates,
         documentos=documentos
     )
 
@@ -82,6 +84,7 @@ def form():
         email = request.form.get("email")
         phone = request.form.get("phone")
         zipCode = request.form.get("zipCode")
+        address = request.form.get("address")
         licensed = request.form.get("licensed")
         npn = request.form.get("npn")
         observation = request.form.get("observation")
@@ -159,8 +162,11 @@ def form():
         contacted = request.form.getlist("contacted")
         allContacted = ", ".join(contacted)
 
+        states = request.form.getlist("states")
+        allStates = ", ".join(states)
+
         # ---- Guardar en BD ----
-        agent = Solicitud(nombre=nombre, email=email, phone=phone, zipCode=zipCode, licensed=licensed, npn=npn, observation=observation, TC=TC)
+        agent = Solicitud(nombre=nombre, email=email, phone=phone, zipCode=zipCode, licensed=licensed, npn=npn, observation=observation, TC=TC, address=address)
         db.session.add(agent)
         db.session.flush()
 
@@ -172,12 +178,13 @@ def form():
         db.session.add(FinalExpenses(finalExpenses=allFinalExpenses, solicitud_id=agent.id))
         db.session.add(ShortTermMedical(sortTermMedical=allShortTermMedical, solicitud_id=agent.id))
         db.session.add(Contacted(contacted=allContacted, solicitud_id=agent.id))
+        db.session.add(StateCoverage(states=allStates, solicitud_id=agent.id))
 
         db.session.commit()
 
         # ---- Generar el PDF ----
         pdf = render_pdf(
-            nombre, email, phone, zipCode, licensed, npn, observation,
+            nombre, email, phone, zipCode, address ,licensed, allStates ,npn, observation,
             allAca, allSupplementals, allMedicareAdvantage, allMedicareSupplement,
             allLifeInsurance, allFinalExpenses, allShortTermMedical, allContacted,
             documentos=documentos

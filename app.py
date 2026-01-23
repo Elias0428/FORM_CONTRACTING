@@ -106,23 +106,35 @@ def form():
 
             # ---- PDF ----
             elif f.mimetype == "application/pdf":
-                # Convertir PDF a imágenes
-                pages = convert_from_bytes(file_bytes, dpi=120)
-                
-                for idx, page in enumerate(pages):
-                    # Convertir la imagen PIL a bytes
-                    img_buffer = BytesIO()
-                    page.save(img_buffer, format="PNG")
-                    img_buffer.seek(0)
+                try:
+                    # Convertir PDF a imágenes (especificar ruta de poppler)
+                    pages = convert_from_bytes(
+                        file_bytes, 
+                        dpi=120,
+                        poppler_path='/usr/bin'
+                    )
                     
-                    # Convertir a base64
-                    img_base64 = base64.b64encode(img_buffer.read()).decode("utf-8")
-                    
+                    for idx, page in enumerate(pages):
+                        # Convertir la imagen PIL a bytes
+                        img_buffer = BytesIO()
+                        page.save(img_buffer, format="PNG")
+                        img_buffer.seek(0)
+                        
+                        # Convertir a base64
+                        img_base64 = base64.b64encode(img_buffer.read()).decode("utf-8")
+                        
+                        documentos.append({
+                            "type": "pdf_page",
+                            "data": f"data:image/png;base64,{img_base64}",
+                            "filename": f.filename,
+                            "page": idx + 1
+                        })
+                except Exception as e:
+                    print(f"❌ Error convirtiendo PDF: {e}")
+                    # Si falla, adjuntar el PDF como archivo
                     documentos.append({
-                        "type": "pdf_page",
-                        "data": f"data:image/png;base64,{img_base64}",
-                        "filename": f.filename,
-                        "page": idx + 1
+                        "type": "other",
+                        "name": f.filename
                     })
 
             # ---- OTROS ----
@@ -131,6 +143,8 @@ def form():
                     "type": "other",
                     "name": f.filename
                 })
+
+        
 
         # ---- Procesar los checkboxes ----
         aca = request.form.getlist("aca")
